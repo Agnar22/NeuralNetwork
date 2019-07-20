@@ -7,8 +7,8 @@ class NeuralNetwork:
     def __init__(self):
 
         # Adjustable parameters
-        self.learning_rate = 0.02
-        self.lambda_value = 0.05
+        self.learning_rate = 0.01
+        self.lambda_value = 0.015
 
         # Weights- and weighted sum for each layer, number of input nodes
         self.weights = []
@@ -78,6 +78,8 @@ class NeuralNetwork:
             self.learning_rate = self.learning_rate * lr_decay
 
         # Printing final output for epoch if validation data is given
+        pred_loss = 0
+        correct_val = 0
         if x_val is not None:
             y_val_pred = self.predict(x_val)
             pred_loss = self.calculate_loss(y_val_pred, y_val)
@@ -85,8 +87,9 @@ class NeuralNetwork:
 
             NeuralNetwork.print_progress(40, x_train.shape[0], x_train.shape[0], sum_loss, correct,
                                          loss_val=pred_loss[0], correct_val=correct_val, val_samp=x_val.shape[0])
-        print()
-        return sum_loss / x_train.shape[0], correct
+            print()
+
+        return sum_loss / x_train.shape[0], correct, pred_loss, correct_val
 
     # Making a prediction for a single sample
     def predict(self, x):
@@ -128,7 +131,7 @@ class NeuralNetwork:
     # Loss function + l2 regularisation loss
     def calculate_loss(self, y_pred, y):
         return sum(self.loss_dict[self.loss](y_pred, y)) / y.shape[0] + \
-               self.lambda_value * self.learning_rate * sum(map(lambda x: sum((x ** 2).flatten()), self.weights))
+                self.lambda_value * self.learning_rate * sum(map(lambda x: sum((x ** 2).flatten()), self.weights))
 
     # Back-propagating the errors
     def _back_propagate(self, y_target, y_pred, batch_size):

@@ -20,9 +20,8 @@ def load_dataset(path, random_shuffle=True, rgb2gray=False, invert_gray=False):
             im = np.asarray(im)
             if rgb2gray:
                 im = cv2.cvtColor(im, cv2.COLOR_RGB2GRAY)
-                im = cv2.bitwise_not(im)
             if invert_gray:
-                im = 255 - im
+                im = cv2.bitwise_not(im)
             im = (im / 127.5) - 1
             im = im.reshape((28 * 28, 1))
             x.append(im)
@@ -48,19 +47,27 @@ def target_nums_to_ndarray(target):
 def create_model():
     NN = NeuralNetwork.NeuralNetwork()
     NN.add_input_layer(28 * 28)
-    NN.add_hidden_layer(64)
-    # NN.add_hidden_layer(64)
-    # NN.add_hidden_layer(64)
+    NN.add_hidden_layer(512)
+    NN.add_hidden_layer(512)
+    NN.add_hidden_layer(512)
     NN.add_hidden_layer(10, act_func='softmax')
     return NN
 
 
-def addPoint(loss, show=True):
-    average_loss.append(loss)
-    positions.append(len(average_loss))
+def addPoint(train_loss, val_loss=None, show=True):
+    average_train_loss.append(train_loss)
+    if val_loss is not None:
+        average_val_loss.append(val_loss)
+    positions.append(len(average_train_loss))
     if show:
-        plt.plot(positions, average_loss)
-        plt.show()
+        plt.close('all')
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        if val_loss is not None:
+            plt.plot(positions, average_train_loss, positions, average_val_loss)
+        else:
+            plt.plot(positions, average_train_loss)
+        plt.show(block=False)
         plt.pause(0.0001)
 
 
@@ -68,8 +75,10 @@ def feed_data(NN, x_train, y_train, x_val=None, y_val=None, train=True, num_epoc
     if train:
         for epoch in range(num_epochs):
             print('Epoch ' + str(epoch + 1) + '/' + str(num_epochs) + ':')
-            loss, correct = NN.fit(x_train, y_train, x_val=x_val, y_val=y_val, batch_size=batch_size)
-            addPoint(loss)
+            loss, correct, val_loss, val_correct = NN.fit(x_train, y_train,
+                                                          x_val=x_val, y_val=y_val, batch_size=batch_size,
+                                                          lr_decay=0.999)
+            addPoint(loss, val_loss)
     else:
         predictions = NN.predict(x_train)
         loss = NN.calculate_loss(predictions, y_train)
@@ -79,7 +88,7 @@ def feed_data(NN, x_train, y_train, x_val=None, y_val=None, train=True, num_epoc
 def view_false(NN, x, y):
     predictions = NN.predict(x)
     for num in range(predictions.shape[0]):
-        if predictions[num:num + 1, :, :].argmax() != y[num:num + 1, :].argmax():
+        if predictions[num:num + 1, :, :].argmax() == y[num:num + 1, :].argmax():
             print(predictions[num:num + 1, :, :].argmax(), y[num:num + 1, :].argmax())
             im = (x[num:num + 1, :, :].reshape(28, 28) + 1) * 127.5
             name = "pred/target : " + str(predictions[num:num + 1, :, :].argmax()) + \
@@ -106,11 +115,10 @@ def prediction_matrix(NN, x, y):
 im_path = 'Images/'
 models_path = 'Weights/'
 
-# Setting up the plot
-average_loss = []  # y-coordinates
+# Lists for the plot
+average_train_loss = []
+average_val_loss = []
 positions = []  # x-coordinates
-plt.ion()
-figure = plt.figure()
 
 NN = create_model()
 
@@ -121,9 +129,13 @@ x_val = (x_val.reshape(x_val.shape[0], 28 * 28, 1) / 127.5) - 1
 y_train = target_nums_to_ndarray(y_train)
 y_val = target_nums_to_ndarray(y_val)
 
-
-# NN.load_weights('trained-' + str(len(os.listdir(models_path))))
-feed_data(NN, x_train, y_train, x_val=x_val, y_val=y_val, train=True, num_epochs=10, batch_size=32)
+NN.load_weights('trained-' + str(len(os.listdir(models_path))))
+# feed_data(NN, x_train, y_train, x_val=x_val, y_val=y_val, train=True, num_epochs=5, batch_size=64)
 prediction_matrix(NN, x_val, y_val)
-NN.save_weights('trained-' + str(len(os.listdir(models_path)) + 1))
-view_false(NN, x_val, y_val)
+# NN.save_weights('trained-' + str(len(os.listdir(models_path)) + 1))
+# view_false(NN, x_val, y_val)
+
+# Predicting my own handwritten digits
+x, y=load_dataset(im_path, random_shuffle=False,rgb2gray=True, invert_gray=True)
+prediction_matrix(NN, x, y)
+
