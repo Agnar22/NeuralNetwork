@@ -41,7 +41,7 @@ The loss for the training- (in blue) and validation data (in yellow) is shown ab
 <img width="50%" src="https://github.com/Agnar22/NeuralNetwork/blob/master/README_images/predictions.PNG"><br>
 <b>Figure 2</b>: a matrix showing target (rows) and prediction (columns) by the NN for the validation data
 </p>
-By looking at the prediction matrix for the validation data (<b>Figure 2</b>), you can see that the network easily recognizes 0's and 1's (with an accuracy of 96% and 97% respectively). On the other hand, 7's and 8's proved to be more difficult. The former where often misclassified as 9's whereas the latter where frequently misclassified as 3's and 5's. Both of the misclassifications are understandable; for a neural network that does not consider spatial invariances, like a conv-net, a sloppy handwritten 7 might resemble a 9, and the curves of a 8 might look like the curves of a 3 or a 5.<br><br>
+By looking at the prediction matrix for the validation data (<b>Figure 2</b>), you can see that the network easily recognizes 0's and 1's (with an accuracy of 96% and 97% respectively). On the other hand, 7's and 8's proved to be more difficult. The former were often misclassified as 9's whereas the latter where frequently misclassified as 3's and 5's. Both of the misclassifications are understandable; for a neural network that does not consider spatial invariances, like a conv-net, a sloppy handwritten 7 might resemble a 9, and the curves of a 8 might look like the curves of a 3 or a 5.<br><br>
 
 
 <p align='center'>
