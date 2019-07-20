@@ -31,7 +31,7 @@ To check if the neural network (both feed forward and backpropagation) was worki
 
 ## Results
 
-![Training- and validation loss for each epoch](https://github.com/Agnar22/NeuralNetwork/blob/master/README_images/graph.PNG | width=50)
+![Training- and validation loss for each epoch](https://github.com/Agnar22/NeuralNetwork/blob/master/README_images/graph.PNG)
 The loss for the training- (in blue) and validation data (in yellow) is shown above. It is strictly decreasing, like it should be. The regression loss used was l2 and the classifiacation loss used was quadratic loss.
 
 
